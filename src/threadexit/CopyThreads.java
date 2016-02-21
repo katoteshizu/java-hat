@@ -25,6 +25,7 @@ public class CopyThreads {
     public static void main(String[] args) {
 
         int i = 0;
+        StatusObject statusObject = new StatusObject();
 
         for (CopyTask copyTask : copyList) {
 
@@ -32,13 +33,15 @@ public class CopyThreads {
             File inFile = new File(copyTask.inputFile);
             File outFile = new File(copyTask.outputFile);
 
-            ReadThread readThread = new ReadThread(inFile, data);
-            new Thread(readThread, "reader" + i).start();
+            ReadThread readThread = new ReadThread(inFile, data, statusObject);
+            new Thread(readThread, "reader " + i).start();
 
-            WriteTread writeTread = new WriteTread(outFile, data);
-            new Thread(writeTread, "writer" + i).start();
+            WriteTread writeTread = new WriteTread(outFile, data, statusObject);
+            new Thread(writeTread, "writer " + i).start();
             i++;
         }
 
+        ExitThread exitThread = new ExitThread(statusObject);
+        new Thread(exitThread, "Exit thread").start();
     }
 }

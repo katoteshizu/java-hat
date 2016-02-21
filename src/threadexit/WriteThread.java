@@ -8,16 +8,19 @@ import java.io.*;
 class WriteTread implements Runnable {
     private Data data;
     private File dest;
+    private StatusObject statusObject;
 
-    public WriteTread(File dest, Data data) {
+    public WriteTread(File dest, Data data, StatusObject statusObject) {
         this.data = data;
         this.dest = dest;
+        this.statusObject = statusObject;
     }
 
     OutputStream osStream = null;
 
     @Override
     public void run() {
+        statusObject.push();
         String name = Thread.currentThread().getName();
         System.out.println(name + " started");
         try {
@@ -28,14 +31,16 @@ class WriteTread implements Runnable {
                 if (data.isEof() > 0) {
                     buffer = data.getBuffer();
                     osStream.write(buffer, 0, data.isEof());
-                    System.out.println(name + "write");
+                    System.out.println(name + " write a portion");
                     data.empty();
                 }
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
+            statusObject.pop();
             close();
+
         }
         System.out.println("Ending write" + name);
     }

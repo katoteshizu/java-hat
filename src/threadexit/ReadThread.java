@@ -8,16 +8,19 @@ import java.io.*;
 public class ReadThread implements Runnable {
     private File source;
     private Data data;
+    private StatusObject statusObject;
 
     InputStream inStream = null;
 
-    public ReadThread(File source, Data data) {
+    public ReadThread(File source, Data data, StatusObject statusObject) {
         this.source = source;
         this.data = data;
+        this.statusObject = statusObject;
     }
 
     @Override
     public void run() {
+        statusObject.push();
         String name = Thread.currentThread().getName();
         System.out.println(name + " started");
         try {
@@ -29,7 +32,7 @@ public class ReadThread implements Runnable {
                 data.setBuffer(buffer);
                 data.setEof(length);
                 data.full();
-                System.out.println(name + "read");
+                System.out.println(name + " read a portion");
                 data.waitForWriting();
             }
             data.setEof(-1);
@@ -37,6 +40,7 @@ public class ReadThread implements Runnable {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
+            statusObject.pop();
             close();
         }
         System.out.println("Ending read" + name);
