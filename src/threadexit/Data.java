@@ -6,7 +6,7 @@ package threadexit;
 public class Data{
     private byte[] buffer;
     private boolean full = false;
-    private int eof;
+    private int eof = 1;
 
     public synchronized int isEof() {
         return eof;

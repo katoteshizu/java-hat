@@ -16,15 +16,16 @@ public class ReadThread implements Runnable {
         this.source = source;
         this.data = data;
         this.statusObject = statusObject;
+        statusObject.push();
     }
 
     @Override
     public void run() {
-        statusObject.push();
         String name = Thread.currentThread().getName();
         System.out.println(name + " started");
+        System.out.println("read file: " + source);
         try {
-            inStream = new FileInputStream(source);
+            inStream = new BufferedInputStream(new FileInputStream(source));
 
             byte[] buffer = data.getBuffer();
             int length;
@@ -32,7 +33,7 @@ public class ReadThread implements Runnable {
                 data.setBuffer(buffer);
                 data.setEof(length);
                 data.full();
-                System.out.println(name + " read a portion");
+//                System.out.println(name + " read a portion");
                 data.waitForWriting();
             }
             data.setEof(-1);
@@ -40,10 +41,10 @@ public class ReadThread implements Runnable {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
-            statusObject.pop();
             close();
+            statusObject.pop();
         }
-        System.out.println("Ending read" + name);
+        System.out.println("Ending " + name);
     }
 
     private void close() {

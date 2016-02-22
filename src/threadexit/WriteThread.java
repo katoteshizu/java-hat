@@ -14,35 +14,38 @@ class WriteTread implements Runnable {
         this.data = data;
         this.dest = dest;
         this.statusObject = statusObject;
+        statusObject.push();
     }
 
     OutputStream osStream = null;
 
     @Override
     public void run() {
-        statusObject.push();
         String name = Thread.currentThread().getName();
-        System.out.println(name + " started");
+        System.out.println("Starting " + name);
+//        boolean wasWrite = false;
         try {
-            osStream = new FileOutputStream(dest);
+            osStream = new BufferedOutputStream(new FileOutputStream(dest));
             byte[] buffer;
+            System.out.println(name + " EOS: " + data.isEof());
             while (data.isEof() > 0) {
+//                wasWrite = true;
                 data.waitForReading();
                 if (data.isEof() > 0) {
                     buffer = data.getBuffer();
                     osStream.write(buffer, 0, data.isEof());
-                    System.out.println(name + " write a portion");
+//                    System.out.println(name + " write a portion");
                     data.empty();
                 }
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
-            statusObject.pop();
             close();
+            statusObject.pop();
 
         }
-        System.out.println("Ending write" + name);
+        System.out.println("Ending " + name);
     }
 
     private void close() {

@@ -8,10 +8,6 @@ public class StatusObject {
     private boolean ready = false;
 
     public synchronized boolean isReady() {
-        if (count == 0) {
-            ready = true;
-            notifyAll();
-        }
         return ready;
     }
 
